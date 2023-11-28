@@ -1,0 +1,17 @@
+{
+  "ConnectionStrings": {
+    "Sqlite": "Data Source=.\\Assets\\sqlite.db;"
+  },
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/log.txt",
+          "rollingInterval": "Day"
+        }
+      }
+    ]
+  }
+}
