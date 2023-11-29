@@ -1,9 +1,9 @@
 ﻿using BankingEvaluation.DbContext;
+using BankingEvaluation.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Configuration;
 
 namespace BankingEvaluation
 {
@@ -19,6 +19,8 @@ namespace BankingEvaluation
             Services = new ServiceCollection()
                 .AddDbContext<IUnitOfWork, SqliteContext>()
                 .AddSingleton<IConfiguration>(Config)
+                .AddTransient<IReportProvider, ReportProvider>()
+                .AddTransient<IReportImporter, ReportImporter>()
                 .AddLogging(p => p.AddSerilog(new LoggerConfiguration()
                         .ReadFrom.Configuration(Config)
                         .CreateLogger())
@@ -28,9 +30,9 @@ namespace BankingEvaluation
                 .BuildServiceProvider()
                 .GetRequiredService<IUnitOfWork>());
         }
-
+        
         public Microsoft.Extensions.Logging.ILogger LoggerFactory<T>() => Provider.GetRequiredService<ILoggerFactory>().CreateLogger<T>();
-
+        
         public IConfiguration Config { get; private set; }
 
         public IServiceCollection Services { get; private set; }
@@ -43,7 +45,7 @@ namespace BankingEvaluation
     public interface IService
     {
         Microsoft.Extensions.Logging.ILogger LoggerFactory<T>();
-
+        
         IConfiguration Config { get; }
 
         IServiceCollection Services { get; }

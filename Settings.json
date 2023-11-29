@@ -2,6 +2,7 @@
   "ConnectionStrings": {
     "Sqlite": "Data Source=.\\Assets\\sqlite.db;"
   },
+  "ReportFiles": ".\\ReportFiles",
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
     "WriteTo": [

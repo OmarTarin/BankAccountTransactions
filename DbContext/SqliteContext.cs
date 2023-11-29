@@ -14,22 +14,26 @@ namespace BankingEvaluation.DbContext
         {
             _conf = conf;
         }
-
-
+        
         public DbSet<Account> Accounts { get; set; }
 
+        public DbSet<ReportFileInfo> ReportFileInfos { get; set; }
 
         public async Task AddAsync(Account account)
         {
             await Accounts.AddAsync(account);
         }
 
+        public async Task AddAsync(ReportFileInfo account)
+        {
+            await ReportFileInfos.AddAsync(account);
+        }
+
         public void EnsureCreated()
         {
             Database.EnsureCreated();
         }
-
-
+        
         public async Task<int> CommitAsync()
         {
             return await SaveChangesAsync();
@@ -38,16 +42,21 @@ namespace BankingEvaluation.DbContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlite(_conf.GetConnectionString("Sqlite"));
+            optionsBuilder
+                .EnableSensitiveDataLogging()
+                .UseSqlite(_conf.GetConnectionString("Sqlite"));
         }
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Account>().ToTable("Accounts");
+            modelBuilder.Entity<ReportFileInfo>()
+                .HasMany<Account>(p => p.Accounts)
+                .WithOne(p => p.ReportFileInfo)
+                .HasForeignKey(p => p.ReportFileInfoId)
+                .HasPrincipalKey(p => p.Id)
+                .IsRequired(false);
         }
-
     }
     
 }

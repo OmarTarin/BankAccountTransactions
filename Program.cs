@@ -17,7 +17,7 @@ namespace BankingEvaluation
 
             service.LoggerFactory<Service>()
                 .LogInformation(@"Starting Service {Application.ProductName} Version {Application.ProductVersion}");
-
+            
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1(service));
         }

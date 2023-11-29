@@ -10,8 +10,12 @@ namespace BankingEvaluation.DbContext
 
         Task AddAsync(Account account);
 
+        Task AddAsync(ReportFileInfo account);
+
         void EnsureCreated();
 
         DbSet<Account> Accounts { get; set; }
+
+        DbSet<ReportFileInfo> ReportFileInfos { get; set; }
     }
 }
