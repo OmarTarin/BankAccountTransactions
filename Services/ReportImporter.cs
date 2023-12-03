@@ -6,6 +6,7 @@ using iTextSharp.text.pdf.parser;
 using iTextSharp.text.pdf;
 using System.Text.RegularExpressions;
 using BankingEvaluation.DbContext;
+using BankingEvaluation.Extensions;
 using BankingEvaluation.Models;
 
 namespace BankingEvaluation.Services
@@ -23,18 +24,18 @@ namespace BankingEvaluation.Services
         }
 
 
-        public async Task<IEnumerable<ImportInfo>> Import()
+        public async Task<IEnumerable<ImportInfoViewModel>> Import()
         {
-            var directoryPath = _configuration.GetSection("ReportFiles");
+            var directoryPath = _configuration.ReportFiles();
 
-            DirectoryInfo directory = new DirectoryInfo(directoryPath.Value);
+            DirectoryInfo directory = new DirectoryInfo(directoryPath);
 
             var files = directory.EnumerateFiles()
                 .Where(p => string.Equals(p.Extension, ".pdf"))
                 .ToList();
 
             var importer = new PdfImporter();
-            var importInfo = new List<ImportInfo>();
+            var importInfo = new List<ImportInfoViewModel>();
 
             foreach (var file in files)
             {
@@ -43,12 +44,7 @@ namespace BankingEvaluation.Services
                 await _unitOfWork.AddAsync(accounts);
                 await _unitOfWork.CommitAsync();
 
-                importInfo.Add(new ImportInfo()
-                {
-                    Name = accounts.Name,
-                    NumberOfPages = accounts.NumberOfPages,
-                    NumberOfTransactions = accounts.NumberOfTransactions
-                });
+                importInfo.Add(accounts.ToImportInfo());
 
                 file.Delete();
             }
@@ -92,18 +88,20 @@ namespace BankingEvaluation.Services
 
                 return MappToAccount(interator.Packages);
             }
-
+            
             private IEnumerable<Account> MappToAccount(IList<IEnumerable<string>> packages)
             {
                 return packages.Select(p =>
                 {
-
                     return new Account()
                     {
-                        Date = DateTime.Parse(p.FirstOrDefault(), CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None),
+                        Date = DateTime.Parse(p.First(), CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None),
                         Value = double.Parse(p.Last(), NumberStyles.Any, CultureInfo.GetCultureInfo("de-DE")),
                         Created = DateTime.Now,
-                        Referenz = string.Join(" ", p.Skip(1).Take(p.Count() - 2))
+                        Text = p.Skip(1).Take(p.Count() - 2).Select(q => new AccountText()
+                        {
+                            Item = q
+                        }).ToList()
                     };
                 });
             }
@@ -153,9 +151,6 @@ namespace BankingEvaluation.Services
 
 
         }
-
-
-
-
+        
     }
 }

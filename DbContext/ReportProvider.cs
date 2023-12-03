@@ -1,16 +1,21 @@
-﻿using System.Linq.Expressions;
-using BankingEvaluation.DbContext.Models;
+﻿using BankingEvaluation.DbContext.Models;
+using BankingEvaluation.Extensions;
+using BankingEvaluation.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+
 
 namespace BankingEvaluation.DbContext
 {
     internal class ReportProvider : IReportProvider
     {
         private readonly IUnitOfWork _unitOfWork;
+        private IConfiguration _configuration;
 
-        public ReportProvider(IUnitOfWork unitOfWork)
+        public ReportProvider(IUnitOfWork unitOfWork, IConfiguration conf)
         {
             _unitOfWork = unitOfWork;
+            _configuration = conf;
         }
 
         public IEnumerable<Account> LoadAccounts(int skip, int take)
@@ -18,32 +23,25 @@ namespace BankingEvaluation.DbContext
             return _unitOfWork.Accounts.Skip(skip).Take(take).ToList();
         }
 
-        public IEnumerable<Account> LoadAccounts(DateTime from, DateTime to, IEnumerable<string>? searchItems = null)
+        public IEnumerable<AccountViewModel> LoadAccounts(DateTime from, DateTime to, IEnumerable<string>? searchItems = null)
         {
-            IQueryable<Account> baseQuery = _unitOfWork.Accounts
+            var baseQuery = _unitOfWork.Accounts
                 .Where(p => p.Date >= from && p.Date <= to)
-                .OrderBy(p => p.Date);
+                .OrderBy(p => p.Date)
+                .Include(p => p.Text.OrderBy(q => q.Id))
+                .ToList();
 
-            //contains any item from searchItems
-            IQueryable<Account> finalQuery = baseQuery;
+            var identifier = _configuration.RecipientIdentifier();
 
-            if (searchItems != null && searchItems.Any())
+            if (searchItems != null)
             {
-                ParameterExpression parameter = Expression.Parameter(typeof(Account), "p");
-                Expression body = Expression.Constant(false);
-
-                foreach (var searchItem in searchItems)
-                {
-                    Expression property = Expression.Property(parameter, "Referenz");
-                    Expression containsMethod = Expression.Call(property, "Contains", null, Expression.Constant(searchItem));
-                    body = Expression.OrElse(body, containsMethod);
-                }
-
-                Expression<Func<Account, bool>> predicate = Expression.Lambda<Func<Account, bool>>(body, parameter);
-                finalQuery = finalQuery.Where(predicate);
+                return baseQuery.Where(p => p.Text.Any(q => 
+                        searchItems.Any(z => q.Item.ToUpper().Contains(z.ToUpper()))))
+                    .Select(p => p.ToAccountViewModel(identifier))
+                    .ToList();
             }
-
-            return finalQuery.ToList();
+            else
+                return baseQuery.Select(p => p.ToAccountViewModel(identifier)).ToList();
         }
         
     }

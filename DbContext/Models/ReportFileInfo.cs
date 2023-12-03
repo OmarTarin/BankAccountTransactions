@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BankingEvaluation.DbContext.Models
 {
     [Table("ReportFileInfos")]
-    public class ReportFileInfo : BaseEntity
+    internal class ReportFileInfo : BaseEntity
     {
         [Required]
         public int NumberOfPages { get; set; }

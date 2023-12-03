@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankingEvaluation.DbContext
 {
-    public interface IUnitOfWork
+    internal interface IUnitOfWork
     {
         Task<int> CommitAsync();
 
@@ -15,6 +15,8 @@ namespace BankingEvaluation.DbContext
         void EnsureCreated();
 
         DbSet<Account> Accounts { get; set; }
+
+        DbSet<AccountText> AccountTexts { get; set; }
 
         DbSet<ReportFileInfo> ReportFileInfos { get; set; }
     }

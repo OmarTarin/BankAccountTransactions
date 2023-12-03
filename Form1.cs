@@ -3,11 +3,11 @@ using BankingEvaluation.DbContext;
 using BankingEvaluation.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Windows.Forms;
+
 
 namespace BankingEvaluation
 {
-    public partial class Form1 : Form
+    internal partial class Form1 : Form
     {
         private readonly IService _service;
         private readonly ILogger _logger;
@@ -36,10 +36,16 @@ namespace BankingEvaluation
                 return;
             }
 
-            var searchText = searchBox.Text;
+            IEnumerable<string>? searchText = null;
+            if (!string.IsNullOrEmpty(searchBox.Text))
+                searchText = searchBox.Text.Split(";");
 
+            var accounts = provider.LoadAccounts(from, to, searchText);
 
-            accountBindingSource.DataSource = provider.LoadAccounts(from, to, searchText.Split(";").ToList());
+            accountViewModelBindingSource.DataSource = accounts;
+
+            sumBox.Text = accounts.Sum(p => p.Value).ToString();
+
         }
 
         private async void loadReportButton_Click(object sender, EventArgs e)
@@ -52,7 +58,7 @@ namespace BankingEvaluation
             {
                 tooltipText += $"{info.Name}: Pages - {info.NumberOfPages}, Transactions - {info.NumberOfTransactions}\n";
             }
-
+            
             MessageBox.Show(tooltipText, "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }

@@ -7,7 +7,7 @@ using Serilog;
 
 namespace BankingEvaluation
 {
-    public class Service : IService
+    internal class Service : IService
     {
         
         public void Initialize()
@@ -42,7 +42,7 @@ namespace BankingEvaluation
         public IUnitOfWork UnitOfWork => Provider.GetRequiredService<IUnitOfWork>();
     }
 
-    public interface IService
+    internal interface IService
     {
         Microsoft.Extensions.Logging.ILogger LoggerFactory<T>();
         

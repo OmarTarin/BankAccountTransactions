@@ -1,5 +1,5 @@
 ﻿using BankingEvaluation.DbContext.Models;
-using Microsoft.Extensions.Configuration;
+using BankingEvaluation.Models;
 
 namespace BankingEvaluation.DbContext
 {
@@ -7,6 +7,6 @@ namespace BankingEvaluation.DbContext
     {
         IEnumerable<Account> LoadAccounts(int skip, int take);
 
-        IEnumerable<Account> LoadAccounts(DateTime from, DateTime to, IEnumerable<string>? searchItems = null);
+        IEnumerable<AccountViewModel> LoadAccounts(DateTime from, DateTime to, IEnumerable<string>? searchItems = null);
     }
 }

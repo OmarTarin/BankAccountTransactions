@@ -4,6 +4,6 @@ namespace BankingEvaluation.Services
 {
     internal interface IReportImporter
     {
-        Task<IEnumerable<ImportInfo>> Import();
+        Task<IEnumerable<ImportInfoViewModel>> Import();
     }
 }

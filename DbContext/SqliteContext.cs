@@ -19,6 +19,8 @@ namespace BankingEvaluation.DbContext
 
         public DbSet<ReportFileInfo> ReportFileInfos { get; set; }
 
+        public DbSet<AccountText> AccountTexts { get; set; }
+
         public async Task AddAsync(Account account)
         {
             await Accounts.AddAsync(account);

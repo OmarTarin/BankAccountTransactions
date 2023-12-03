@@ -3,6 +3,7 @@
     "Sqlite": "Data Source=.\\Assets\\sqlite.db;"
   },
   "ReportFiles": ".\\ReportFiles",
+  "RecipientIdentifier": [ "Lastschrift /", "Übertrag /" ],
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
     "WriteTo": [
